@@ -9,13 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
 
-import {
-  FriendRequestEntity,
-  FriendRequestsRepository,
-  UserEntity,
-  UserJwt,
-  UserRepositoryInterface,
-} from '@app/shared';
+import { UserEntity, UserJwt, UserRepositoryInterface } from '@app/shared';
 
 import { ExistingUserDTO } from './dtos/existing-user.dto';
 import { NewUserDTO } from './dtos/new-user.dto';
@@ -26,8 +20,7 @@ export class AuthService implements AuthServiceInterface {
   constructor(
     @Inject('UsersRepositoryInterface')
     private readonly usersRepository: UserRepositoryInterface,
-    @Inject('FriendRequestsRepositoryInterface')
-    private readonly friendRequestsRepository: FriendRequestsRepository,
+
     private readonly jwtService: JwtService,
   ) {}
 
@@ -136,48 +129,5 @@ export class AuthService implements AuthServiceInterface {
     } catch (error) {
       throw new BadRequestException();
     }
-  }
-
-  async addFriend(
-    userId: number,
-    friendId: number,
-  ): Promise<FriendRequestEntity> {
-    const creator = await this.findById(userId);
-    const receiver = await this.findById(friendId);
-
-    return await this.friendRequestsRepository.save({ creator, receiver });
-  }
-
-  async getFriends(userId: number): Promise<FriendRequestEntity[]> {
-    const creator = await this.findById(userId);
-
-    return await this.friendRequestsRepository.findWithRelations({
-      where: [{ creator }, { receiver: creator }],
-      relations: ['creator', 'receiver'],
-    });
-  }
-
-  async getFriendsList(userId: number) {
-    const friendRequests = await this.getFriends(userId);
-
-    if (!friendRequests) return [];
-
-    const friends = friendRequests.map((friendRequest) => {
-      const isUserCreator = userId === friendRequest.creator.id;
-      const friendDetails = isUserCreator
-        ? friendRequest.receiver
-        : friendRequest.creator;
-
-      const { id, firstName, lastName, email } = friendDetails;
-
-      return {
-        id,
-        email,
-        firstName,
-        lastName,
-      };
-    });
-
-    return friends;
   }
 }

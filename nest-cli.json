@@ -53,6 +53,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/chat/tsconfig.app.json"
       }
+    },
+    "prifile": {
+      "type": "application",
+      "root": "apps/prifile",
+      "entryFile": "main",
+      "sourceRoot": "apps/prifile/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/prifile/tsconfig.app.json"
+      }
     }
   }
 }
